@@ -24,6 +24,7 @@ from video_creation.background import (
 from video_creation.final_video import make_final_video
 from video_creation.screenshot_downloader import get_screenshots_of_reddit_posts
 from video_creation.voices import save_text_to_mp3
+from megauploader import upload_videos, list_uploaded_files, download_config
 
 __VERSION__ = "3.3.0"
 
@@ -113,6 +114,8 @@ if __name__ == "__main__":
         elif config["settings"]["times_to_run"]:
             run_many(config["settings"]["times_to_run"])
         else:
+            if os.getenv("IS_DOCKER") == True:
+                download_config()
             main()
             
     except KeyboardInterrupt:

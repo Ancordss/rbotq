@@ -13,7 +13,6 @@ from urllib3.util.ssl_ import create_urllib3_context
 
 
 # Tu API key
-# API_KEY = "8703f100-5817-4d9f-97f0-7e7c4c4a7ce3"
 API_KEY = os.environ.get("PIXEL_API_KEY")
 FOLDER = "results"  # Carpeta donde están los videos
 
@@ -89,6 +88,24 @@ def list_uploaded_files():
     else:
         print("❌ Error al listar archivos:", response.status_code, response.text)
 
+
+## download config file
+def download_config():
+    config_id = os.getenv("CONFIG_ID")
+    if not config_id:
+        print("❌ No se encontró el ID de la configuración")
+        return
+
+    response = session.get(f"https://pixeldrain.com/api/file/{config_id}", headers=auth_header)
+    if response.status_code == 200:
+        with open("config.toml", "wb") as f:
+            f.write(response.content)
+        print("✅ Configuración descargada correctamente")
+    else:
+        print(f"❌ Error al descargar la configuración: {response.status_code}")
+        print(response.text)
+
 if __name__ == "__main__":
     upload_videos()
     list_uploaded_files()
+    download_config()
