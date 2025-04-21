@@ -2,6 +2,7 @@
 import math
 import sys
 from os import name
+import os
 from pathlib import Path
 from subprocess import Popen
 from typing import NoReturn
