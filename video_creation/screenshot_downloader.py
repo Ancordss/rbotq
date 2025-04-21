@@ -12,6 +12,7 @@ from utils.console import print_step, print_substep
 from utils.imagenarator import imagemaker
 from utils.playwright import clear_cookie_by_name
 from utils.videos import save_data
+from utils.screenshot_cut import crop_before_next_avatar
 
 __all__ = ["get_screenshots_of_reddit_posts"]
 
@@ -102,7 +103,10 @@ def get_screenshots_of_reddit_posts(reddit_object: dict, screenshot_num: int):
 
         page.locator(f'input[name="username"]').fill(settings.config["reddit"]["creds"]["username"])
         page.locator(f'input[name="password"]').fill(settings.config["reddit"]["creds"]["password"])
-        page.get_by_role("button", name="Log In").click()
+        if lang == "es":
+            page.get_by_role("button", name="Iniciar sesión").click()
+        else:
+            page.get_by_role("button", name="Log In").click()
         page.wait_for_timeout(5000)
 
         login_error_div = page.locator(".AnimatedForm__errorMessage").first
@@ -162,9 +166,15 @@ def get_screenshots_of_reddit_posts(reddit_object: dict, screenshot_num: int):
                 translator="google",
             )
 
+
             page.evaluate(
-                "tl_content => document.querySelector('[data-adclicklocation=\"title\"] > div > div > h1').textContent = tl_content",
-                texts_in_tl,
+                '''
+                ([tl_content, reddit_id]) => {
+                    const el = document.querySelector(`shreddit-post[id="t3_${reddit_id}"] h1`);
+                    if (el) el.textContent = tl_content;
+                }
+                ''',
+                [texts_in_tl, reddit_id],
             )
         else:
             print_substep("Skipping translation...")
@@ -182,7 +192,8 @@ def get_screenshots_of_reddit_posts(reddit_object: dict, screenshot_num: int):
                     location[i] = float("{:.2f}".format(location[i] * zoom))
                 page.screenshot(clip=location, path=postcontentpath)
             else:
-                page.locator('[data-test-id="post-content"]').screenshot(path=postcontentpath)
+
+                page.locator(f'shreddit-post[id="t3_{reddit_id}"]').screenshot(path=postcontentpath)
         except Exception as e:
             print_substep("Something went wrong!", style="red")
             resp = input(
@@ -203,7 +214,7 @@ def get_screenshots_of_reddit_posts(reddit_object: dict, screenshot_num: int):
             raise e
 
         if storymode:
-            page.locator('[data-click-id="text"]').first.screenshot(
+            page.locator(f'shreddit-post[id="t3_{reddit_id}"]').screenshot(
                 path=f"assets/temp/{reddit_id}/png/story_content.png"
             )
         else:
@@ -230,10 +241,17 @@ def get_screenshots_of_reddit_posts(reddit_object: dict, screenshot_num: int):
                         translator="google",
                         to_language=settings.config["reddit"]["thread"]["post_lang"],
                     )
+
+                    print_substep(comment_tl)
                     page.evaluate(
-                        '([tl_content, tl_id]) => document.querySelector(`#t1_${tl_id} > div:nth-child(2) > div > div[data-testid="comment"] > div`).textContent = tl_content',
+                        '''
+                        ([tl_content, tl_id]) => {
+                            const el = document.querySelector(`div[id="t1_${tl_id}-comment-rtjson-content"]`);
+                            if (el) el.textContent = tl_content;
+                        }
+                        ''',
                         [comment_tl, comment["comment_id"]],
-                    )
+                )
                 try:
                     if settings.config["settings"]["zoom"] != 1:
                         # store zoom settings
@@ -241,9 +259,9 @@ def get_screenshots_of_reddit_posts(reddit_object: dict, screenshot_num: int):
                         # zoom the body of the page
                         page.evaluate("document.body.style.zoom=" + str(zoom))
                         # scroll comment into view
-                        page.locator(f"#t1_{comment['comment_id']}").scroll_into_view_if_needed()
+                        page.locator(f"div[id='t1_{comment['comment_id']}-comment-rtjson-content']").scroll_into_view_if_needed()
                         # as zooming the body doesn't change the properties of the divs, we need to adjust for the zoom
-                        location = page.locator(f"#t1_{comment['comment_id']}").bounding_box()
+                        location = page.locator(f"div[id='t1_{comment['comment_id']}-comment-rtjson-content']").bounding_box()
                         for i in location:
                             location[i] = float("{:.2f}".format(location[i] * zoom))
                         page.screenshot(
@@ -251,8 +269,24 @@ def get_screenshots_of_reddit_posts(reddit_object: dict, screenshot_num: int):
                             path=f"assets/temp/{reddit_id}/png/comment_{idx}.png",
                         )
                     else:
-                        page.locator(f"#t1_{comment['comment_id']}").screenshot(
-                            path=f"assets/temp/{reddit_id}/png/comment_{idx}.png"
+                        # page.locator(f'div[id="t1_{comment["comment_id"]}-comment-rtjson-content"]').screenshot(
+                        #     path=f"assets/temp/{reddit_id}/png/comment_{idx}.png"
+                        # )
+                                                # Oculta las respuestas hijas antes de tomar la screenshot
+                        page.evaluate(f'''
+                            const comment = document.querySelector('shreddit-comment[thingid="t1_{comment["comment_id"]}"]');
+                            if (comment) {{
+                                const replies = comment.querySelector('[slot="next-reply"]');
+                                if (replies) replies.style.display = "none";
+                            }}
+                        ''')
+
+                        page.locator(f'shreddit-comment[thingid="t1_{comment["comment_id"]}"]').screenshot(
+                            path=f"assets/temp/{reddit_id}/png/comment_{idx}_full.png"
+                        )
+                        crop_before_next_avatar(
+                            f"assets/temp/{reddit_id}/png/comment_{idx}_full.png",
+                            f"assets/temp/{reddit_id}/png/comment_{idx}.png"
                         )
                 except TimeoutError:
                     del reddit_object["comments"]

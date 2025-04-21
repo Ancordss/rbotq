@@ -1,0 +1,26 @@
+name: Upload Videos to Mega
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # Cada hora
+  workflow_dispatch:     # Permite ejecución manual
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker image
+      run: docker build -t rbotq .
+
+    - name: Run upload script in Docker
+      run: |
+        docker run --rm \
+          -e PIXEL_API_KEY=${{ secrets.PIXEL_API_KEY }} \
+          rbotq

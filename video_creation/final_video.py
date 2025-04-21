@@ -21,6 +21,7 @@ from utils.console import print_step, print_substep
 from utils.fonts import getheight
 from utils.thumbnail import create_thumbnail
 from utils.videos import save_data
+from megauploader import upload_videos
 
 console = Console()
 
@@ -480,3 +481,10 @@ def make_final_video(
     cleanups = cleanup(reddit_id)
     print_substep(f"Removed {cleanups} temporary files 🗑")
     print_step("Done! 🎉 The video is in the results folder 📁")
+    print_step("Uploading to Mega 🌌")
+    try:
+        upload_videos()
+    except Exception as e:
+        print(e)
+        exit(1)
+    time.sleep(60)

@@ -37,9 +37,9 @@
         "center"
     ],
     "minecraft-2": [
-        "https://www.youtube.com/watch?v=Pt5_GSKIWQM",
-        "minecraft-2.mp4",
-        "Itslpsn",
+        "https://www.youtube.com/watch?v=85z7jqGAGcc",
+        "minecraft-3.mp4",
+        "orbital",
         "center"
     ],
     "multiversus": [
@@ -58,6 +58,12 @@
         "https://www.youtube.com/watch?v=EnGiQrWBrko",
         "steep.mp4",
         "joel",
+        "center"
+    ],
+    "minecraft-3": [
+        "https://www.youtube.com/watch?v=85z7jqGAGcc",
+        "minecraft-3.mp4",
+        "",
         "center"
     ]
 }

@@ -58,6 +58,7 @@ def main(POST_ID=None) -> None:
     download_background_audio(bg_config["audio"])
     chop_background(bg_config, length, reddit_object)
     make_final_video(number_of_comments, length, reddit_object, bg_config)
+    
 
 
 def run_many(times) -> None:
@@ -113,6 +114,7 @@ if __name__ == "__main__":
             run_many(config["settings"]["times_to_run"])
         else:
             main()
+            
     except KeyboardInterrupt:
         shutdown()
     except ResponseException:
