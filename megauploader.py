@@ -92,7 +92,7 @@ def list_uploaded_files():
 ## download config file
 def download_config():
     url = os.environ.get("CONFIG_ID")
-    response = session.get(url)
+    response = requests.get(url)
     if response.status_code == 200:
         with open("config.toml", "wb") as f:
             f.write(response.content)
