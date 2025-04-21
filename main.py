@@ -90,7 +90,7 @@ if __name__ == "__main__":
     ffmpeg_install()
     directory = Path().absolute()
     print("IS_DOCKER:", os.getenv("IS_DOCKER"))
-    if os.environ.get("IS_DOCKER") == True:
+    if os.environ.get("IS_DOCKER") == "True":
         print("Downloading config...")
         download_config()
     config = settings.check_toml(
