@@ -91,10 +91,10 @@ def list_uploaded_files():
 
 ## download config file
 def download_config():
-    config_id = os.getenv("CONFIG_ID")
+    config_id = os.environ.get("CONFIG_ID")
     if not config_id:
         print("❌ No se encontró el ID de la configuración")
-        return
+        exit 1
 
     response = session.get(f"https://pixeldrain.com/api/file/{config_id}", headers=auth_header)
     if response.status_code == 200:
