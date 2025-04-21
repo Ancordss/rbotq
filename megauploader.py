@@ -96,7 +96,7 @@ def download_config():
         print("❌ No se encontró el ID de la configuración")
         exit(1)
 
-    response = session.get(f"https://pixeldrain.com/api/file/{config_id}", headers=auth_header)
+    response = session.get(f"{config_id}", headers=auth_header)
     if response.status_code == 200:
         with open("config.toml", "wb") as f:
             f.write(response.content)
