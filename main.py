@@ -88,6 +88,8 @@ if __name__ == "__main__":
         sys.exit()
     ffmpeg_install()
     directory = Path().absolute()
+    if os.getenv("IS_DOCKER") == True:
+        download_config()
     config = settings.check_toml(
         f"{directory}/utils/.config.template.toml", f"{directory}/config.toml"
     )
@@ -114,8 +116,6 @@ if __name__ == "__main__":
         elif config["settings"]["times_to_run"]:
             run_many(config["settings"]["times_to_run"])
         else:
-            if os.getenv("IS_DOCKER") == True:
-                download_config()
             main()
             
     except KeyboardInterrupt:
