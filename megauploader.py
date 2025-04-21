@@ -91,12 +91,8 @@ def list_uploaded_files():
 
 ## download config file
 def download_config():
-    config_id = os.environ.get("CONFIG_ID")
-    if not config_id:
-        print("❌ No se encontró el ID de la configuración")
-        exit(1)
-
-    response = session.get(f"{config_id}", headers=auth_header)
+    url = os.environ.get("CONFIG_ID")
+    response = session.get(url)
     if response.status_code == 200:
         with open("config.toml", "wb") as f:
             f.write(response.content)
