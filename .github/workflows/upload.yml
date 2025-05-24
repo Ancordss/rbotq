@@ -1,8 +1,8 @@
 name: Upload Videos to Mega
 
 on:
-  schedule:
-    - cron: "0 3 * * *"  # Cada hora
+  # schedule:
+    # - cron: "0 3 * * *"  # Cada hora
   workflow_dispatch:     # Permite ejecución manual
 
 jobs:
